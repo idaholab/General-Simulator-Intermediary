@@ -5,11 +5,13 @@
 
 #include <iostream>
 #include <stdio.h>
+#include <signal.h>
+#include "NetworkHandling/NetworkHandler.h"
+#include "DataHandling/InputScanning.h"
 
 #ifdef WINDOWS
-#include <winsock2.h>
-#include <ws2tcpip.h>
 
 #endif
 
-// TODO: Reference additional headers your program requires here.
+void constructResources();
+void disposeResources();
