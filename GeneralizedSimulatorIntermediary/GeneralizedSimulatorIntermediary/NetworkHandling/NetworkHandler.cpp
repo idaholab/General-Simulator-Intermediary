@@ -59,6 +59,13 @@ NetworkHandler::~NetworkHandler()
 
 }
 
+void NetworkHandler::sendNoAvailableHandlerThreadMessage(SOCKET clientSocket)
+{
+	std::string returnValue = "No Client Thread To Accept Connection";
+	send(clientSocket, returnValue.c_str(), returnValue.size(), 0);
+	closesocket(clientSocket);
+}
+
 void NetworkHandler::Shutdown()
 {
 	closesocket(ListenSocket);
@@ -80,7 +87,6 @@ void NetworkHandler::handleNetworkCommunication()
 		SOCKET ClientSocket = INVALID_SOCKET;
 
 		ClientSocket = accept(ListenSocket, NULL, NULL);
-
 		
 		if (continueRunning)
 		{
@@ -91,7 +97,10 @@ void NetworkHandler::handleNetworkCommunication()
 			}
 			else
 			{
-				threadPool->assignConnectionToThread(ClientSocket);
+				if (!threadPool->assignConnectionToThread(ClientSocket))
+				{
+					sendNoAvailableHandlerThreadMessage(ClientSocket);
+				}
 			}
 		}
 		else

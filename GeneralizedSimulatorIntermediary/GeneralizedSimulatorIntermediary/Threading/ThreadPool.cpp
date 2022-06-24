@@ -29,6 +29,7 @@ ThreadPool::~ThreadPool()
 	delete[] mainPoolStorage;
 	delete[] clientConnectionSockets;
 	delete[] threadStops;
+	delete[] availabilityArray;
 }
 
 void ThreadPool::shutDown()
@@ -55,23 +56,18 @@ void ThreadPool::mainThreadLoop(int ThreadID)
 		//JPL 2022-06-16 I am going to hope that the distance between the while loops is negligible
 		availabilityMutex.lock();
 		availabilityArray[ThreadID] = true;
-		availabilityCount++;
 		availabilityMutex.unlock();
 
 		std::unique_lock<std::mutex> lock(sharedMutex);
 		while (continueRunning && clientConnectionSockets[ThreadID] == INVALID_SOCKET) threadStops[ThreadID].wait(lock);
-		
-		availabilityMutex.lock();
-		availabilityArray[ThreadID] = false;
-		availabilityCount--;
-		availabilityMutex.unlock();
+
 		
 		if (!continueRunning) break;
 
 		do
 		{
 			iResult = recv(clientConnectionSockets[ThreadID], recvbuf, recvbuflen, 0);
-			recvbuf[iResult] = 0;
+			recvbuf[iResult<DEFAULT_BUFLEN ? iResult:DEFAULT_BUFLEN-1] = 0;
 			if (iResult > 0)
 			{
 
@@ -105,29 +101,26 @@ void ThreadPool::mainThreadLoop(int ThreadID)
 	}
 }
 
-bool ThreadPool::isThreadAvailable()
-{
-	bool returnValue;
-	availabilityMutex.lock();
-	returnValue = availabilityCount >= 0;
-	availabilityMutex.unlock();
-	return returnValue;
-}
-
-void ThreadPool::assignConnectionToThread(SOCKET newClientSocket)
+bool ThreadPool::assignConnectionToThread(SOCKET newClientSocket)
 {
 	bool keepChecking = true;
 
 	for (int i = 0; i < numberOfThreads; i++)
 	{
 		availabilityMutex.lock();
+
 		if (availabilityArray[i])
 		{
 			keepChecking = false;
+			availabilityArray[i] = false;
 			clientConnectionSockets[i] = newClientSocket;
 			threadStops[i].notify_all();
 		}
+
 		availabilityMutex.unlock();
+
 		if (!keepChecking) break;
 	}
+
+	return !keepChecking;
 }

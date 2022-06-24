@@ -29,6 +29,8 @@ private:
 	SOCKET ListenSocket;
 	ThreadPool* threadPool;
 
+	void sendNoAvailableHandlerThreadMessage(SOCKET clientSocket);
+
 public:
 
 	NetworkHandler(std::string Port, std::string IpAddress);

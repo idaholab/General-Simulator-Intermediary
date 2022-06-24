@@ -23,7 +23,6 @@ private:
 	
 	int numberOfThreads;
 	std::mutex availabilityMutex;
-	int availabilityCount;
 	bool* availabilityArray;
 
 	SOCKET* clientConnectionSockets;
@@ -39,7 +38,6 @@ public:
 
 	void shutDown();
 
-	bool isThreadAvailable();
-	void assignConnectionToThread(SOCKET newClientSocket);
+	bool assignConnectionToThread(SOCKET newClientSocket);
 
 };
