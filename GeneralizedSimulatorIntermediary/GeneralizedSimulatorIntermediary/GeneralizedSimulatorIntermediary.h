@@ -13,5 +13,7 @@
 
 #endif
 
+void dropInMenu(int value);
+
 void constructResources();
 void disposeResources();

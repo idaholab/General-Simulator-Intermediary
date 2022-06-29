@@ -18,4 +18,5 @@ public:
 	ThreadsafeDataValue(std::string valueIn);
 	ThreadsafeDataValue() {};
 	ThreadsafeDataValue(const ThreadsafeDataValue& data) = delete;
+	~ThreadsafeDataValue();
 };

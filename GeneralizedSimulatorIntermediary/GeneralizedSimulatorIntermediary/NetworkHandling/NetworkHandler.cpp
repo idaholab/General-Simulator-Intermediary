@@ -3,6 +3,7 @@
 
 NetworkHandler::NetworkHandler(std::string Port, std::string IpAddress)
 {
+	connectionNumber = 0;
 	this->Port = Port;
 	this->IpAddress = IpAddress;
 	ListenSocket = INVALID_SOCKET;
@@ -90,18 +91,22 @@ void NetworkHandler::handleNetworkCommunication()
 		
 		if (continueRunning)
 		{
-			printf("Accepting Client\n");
 			if (ClientSocket == INVALID_SOCKET)
 			{
 				printf("accept failed: %d\n", WSAGetLastError());
 			}
 			else
 			{
-				if (!threadPool->assignConnectionToThread(ClientSocket))
+				if (threadPool->assignConnectionToThread(ClientSocket))
+				{
+				}
+				else
 				{
 					sendNoAvailableHandlerThreadMessage(ClientSocket);
 				}
 			}
+			connectionNumber++;
+
 		}
 		else
 		{
@@ -110,58 +115,6 @@ void NetworkHandler::handleNetworkCommunication()
 	}
 
 	WSACleanup();
-
-	//this code is just stored here temporarily
-	// this is the client code
-	//char recvbuf[DEFAULT_BUFLEN]{};
-	//int iSendResult;
-	//int recvbuflen = DEFAULT_BUFLEN;
-
-	//do
-	//{
-	//	iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
-	//	if (iResult > 0)
-	//	{
-	//		printf("Bytes received: %d\n", iResult);
-
-	//		printf(recvbuf);
-	//		printf("\nEchoing back to Client\n");
-	//		iSendResult = send(ClientSocket, recvbuf, iResult, 0);
-	//		if (iSendResult == SOCKET_ERROR)
-	//		{
-	//			printf("send failed: %d\n", WSAGetLastError());
-	//			closesocket(ClientSocket);
-	//			WSACleanup();
-	//			return ;
-	//		}
-	//		printf("Bytes sent: %d\n", iSendResult);
-	//	}
-	//	else if (iResult == 0)
-	//	{
-	//		printf("Connection closing...\n");
-	//	}
-	//	else
-	//	{
-	//		printf("recv failed: %d\n", WSAGetLastError());
-	//		closesocket(ClientSocket);
-	//		WSACleanup();
-	//		return ;
-	//	}
-	//} while (iResult > 0);
-
-	//printf("Shutting Down\n");
-
-	//iResult = shutdown(ClientSocket, SD_SEND);
-	//if (iResult == SOCKET_ERROR)
-	//{
-	//	printf("shutdown failed: %d\n", WSAGetLastError());
-	//	closesocket(ClientSocket);
-	//	WSACleanup();
-	//	return ;
-	//}
-
-	//closesocket(ClientSocket);
-	//WSACleanup();
 
 }
 

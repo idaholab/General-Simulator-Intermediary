@@ -8,7 +8,6 @@ ThreadPool::ThreadPool(int numberOfThreads)
 	mainPoolStorage = new std::thread[numberOfThreads];
 	clientConnectionSockets = new SOCKET[numberOfThreads];
 	threadStops = new std::condition_variable[numberOfThreads];
-	availabilityArray = new bool[numberOfThreads];
 
 	for (int i = 0; i < numberOfThreads; i++)
 	{
@@ -29,7 +28,6 @@ ThreadPool::~ThreadPool()
 	delete[] mainPoolStorage;
 	delete[] clientConnectionSockets;
 	delete[] threadStops;
-	delete[] availabilityArray;
 }
 
 void ThreadPool::shutDown()
@@ -53,13 +51,9 @@ void ThreadPool::mainThreadLoop(int ThreadID)
 
 	while (continueRunning)
 	{
-		//JPL 2022-06-16 I am going to hope that the distance between the while loops is negligible
-		availabilityMutex.lock();
-		availabilityArray[ThreadID] = true;
-		availabilityMutex.unlock();
 
 		std::unique_lock<std::mutex> lock(sharedMutex);
-		while (continueRunning && clientConnectionSockets[ThreadID] == INVALID_SOCKET) threadStops[ThreadID].wait(lock);
+		while (continueRunning && clientConnectionSockets[ThreadID] == INVALID_SOCKET) threadStops[ThreadID].wait_for(lock, 250ms);
 
 		
 		if (!continueRunning) break;
@@ -67,10 +61,10 @@ void ThreadPool::mainThreadLoop(int ThreadID)
 		do
 		{
 			iResult = recv(clientConnectionSockets[ThreadID], recvbuf, recvbuflen, 0);
-			recvbuf[iResult<DEFAULT_BUFLEN ? iResult:DEFAULT_BUFLEN-1] = 0;
+
+			recvbuf[iResult>0  &&iResult < DEFAULT_BUFLEN ? iResult:DEFAULT_BUFLEN-1] = 0;
 			if (iResult > 0)
 			{
-
 				ConnectionDatum datum = InputScanning::parseConnectionDatumFromSentPacket(std::string((char *)recvbuf));
 				
 				std::string returnValue = "Invalid Format";
@@ -97,7 +91,10 @@ void ThreadPool::mainThreadLoop(int ThreadID)
 		} while (iResult > 0);
 
 		closesocket(clientConnectionSockets[ThreadID]);
+		availabilityMutex.lock();
 		clientConnectionSockets[ThreadID] = INVALID_SOCKET;
+		availabilityMutex.unlock();
+
 	}
 }
 
@@ -109,10 +106,9 @@ bool ThreadPool::assignConnectionToThread(SOCKET newClientSocket)
 	{
 		availabilityMutex.lock();
 
-		if (availabilityArray[i])
+		if (clientConnectionSockets[i] == INVALID_SOCKET)
 		{
 			keepChecking = false;
-			availabilityArray[i] = false;
 			clientConnectionSockets[i] = newClientSocket;
 			threadStops[i].notify_all();
 		}
@@ -123,4 +119,9 @@ bool ThreadPool::assignConnectionToThread(SOCKET newClientSocket)
 	}
 
 	return !keepChecking;
+}
+
+SharedDataResource* ThreadPool::getSharedDataResource()
+{
+	return &mainResource;
 }

@@ -28,5 +28,10 @@ private:
 public:
 
 	std::string processConnectionDatum(ConnectionDatum datumIn);
+
+	void count();
+	void check();
+	void clear();
+
 	~SharedDataResource();
 };

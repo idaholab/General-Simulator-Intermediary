@@ -1,6 +1,10 @@
 
 #include "ThreadsafeDataValue.h"
 
+ThreadsafeDataValue::~ThreadsafeDataValue()
+{
+}
+
 ThreadsafeDataValue::ThreadsafeDataValue(std::string valueIn)
 {
 	this->setValue(valueIn);
@@ -8,7 +12,6 @@ ThreadsafeDataValue::ThreadsafeDataValue(std::string valueIn)
 
 std::string ThreadsafeDataValue::getValue()
 {
-
 	valueLock.lock();
 	std::string returnValue = std::string(Value);
 	valueLock.unlock();

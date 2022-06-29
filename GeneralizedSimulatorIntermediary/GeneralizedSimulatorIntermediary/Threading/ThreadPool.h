@@ -3,6 +3,9 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <chrono>
+
+using namespace std::chrono_literals;
 
 #ifdef WINDOWS
 #include <winsock2.h>
@@ -23,7 +26,6 @@ private:
 	
 	int numberOfThreads;
 	std::mutex availabilityMutex;
-	bool* availabilityArray;
 
 	SOCKET* clientConnectionSockets;
 	std::condition_variable* threadStops;
@@ -40,4 +42,5 @@ public:
 
 	bool assignConnectionToThread(SOCKET newClientSocket);
 
+	SharedDataResource* getSharedDataResource();
 };

@@ -28,6 +28,45 @@ std::string SharedDataResource::processConnectionDatum(ConnectionDatum datumIn)
 	return returnValue;
 }
 
+void SharedDataResource::count()
+{
+	lockMainDataResourcesLocks();
+
+	printf("Current Stored Elements %ld\n", mainDataResource.size());
+
+	unlockMainDataResourcesLocks();
+}
+
+void SharedDataResource::check()
+{
+	lockMainDataResourcesLocks();
+
+	for (std::pair<std::string, ThreadsafeDataValue*> ptr : mainDataResource)
+	{
+		printf("%s:%s\n", ptr.first.c_str(), ptr.second->getValue().c_str());
+	}
+
+	unlockMainDataResourcesLocks();
+}
+
+void SharedDataResource::clear()
+{
+	lockMainDataResourcesLocks();
+
+	for (std::pair<std::string, ThreadsafeDataValue*> ptr : mainDataResource)
+	{
+		delete ptr.second;
+	}
+	mainDataResource.clear();
+	
+	for (std::pair<std::string, std::mutex*> ptr : mainDataResourcesMutexLocks)
+	{
+		delete ptr.second;
+	}
+
+	unlockMainDataResourcesLocks();
+}
+
 void SharedDataResource::lockMainDataResourcesLocks()
 {
 	MutexLocksMutex.lock();

@@ -20,6 +20,8 @@ private:
 	std::string IpAddress;
 	bool continueRunning;
 
+	int connectionNumber;
+
 	struct addrinfo* result = NULL;
 	struct addrinfo* ptr = NULL;
 	struct addrinfo hints;
