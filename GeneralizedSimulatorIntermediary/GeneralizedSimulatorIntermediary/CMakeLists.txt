@@ -1,4 +1,5 @@
-﻿# CMakeList.txt : CMake project for GeneralizedSimulatorIntermediary, include source and define
+﻿##Copyright 2022, Battelle Energy Alliance, LLC
+# CMakeList.txt : CMake project for GeneralizedSimulatorIntermediary, include source and define
 # project specific logic here.
 #
 cmake_minimum_required (VERSION 3.8)

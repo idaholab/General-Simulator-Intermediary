@@ -1,4 +1,5 @@
-﻿// GeneralizedSimulatorIntermediary.cpp : Defines the entry point for the application.
+﻿//Copyright 2022, Battelle Energy Alliance, LLC
+// GeneralizedSimulatorIntermediary.cpp : Defines the entry point for the application.
 //
 
 #include "GeneralizedSimulatorIntermediary.h"

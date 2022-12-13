@@ -1,4 +1,4 @@
-
+//Copyright 2022, Battelle Energy Alliance, LLC
 #include "ThreadsafeDataValue.h"
 
 ThreadsafeDataValue::~ThreadsafeDataValue()

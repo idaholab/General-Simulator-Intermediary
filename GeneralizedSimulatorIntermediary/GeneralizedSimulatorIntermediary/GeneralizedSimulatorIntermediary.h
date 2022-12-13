@@ -1,4 +1,5 @@
-﻿// GeneralizedSimulatorIntermediary.h : Include file for standard system include files,
+﻿//Copyright 2022, Battelle Energy Alliance, LLC
+// GeneralizedSimulatorIntermediary.h : Include file for standard system include files,
 // or project specific include files.
 
 #pragma once
